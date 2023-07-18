@@ -1,0 +1,16 @@
+*button{
+    box-sizing: border-box;
+
+position: absolute;
+width: 196px;
+height: 34px;
+left: 623px;
+top: 269px;
+
+border: 2px solid #FF5C00;
+border-radius: 63px;
+}
+.navbar{
+    padding: 2rem 0.5rem;
+    color: #FF5C00;
+  }

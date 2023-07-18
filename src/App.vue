@@ -1,0 +1,126 @@
+<template>
+  <div id="app">
+    <nav class="navbar navbar-expand navbar-dark bg-dark">
+      <a href class="navbar-brand" @click.prevent>Агрозащитник</a>
+      <div class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <router-link to="/" class="nav-link">
+            <font-awesome-icon icon="home" />Домашняя
+          </router-link>
+        </li>
+        <!-- <li class="nav-item">
+          <router-link to="/obra" class="nav-link">
+            <font-awesome-icon />Обращение
+          </router-link>
+        </li> -->
+        <li v-if="isAdmin" class="nav-item">
+          <router-link to="/mod" class="nav-link">Анкеты экспертов</router-link>
+        </li>
+        <li v-if="showModeratorBoard" class="nav-item">
+          <router-link to="/mod" class="nav-link">Moderator Board</router-link>
+        </li>
+        <!-- <li class="nav-item">
+          <router-link v-if="currentUser" to="/anketa" class="nav-link">Анкета</router-link>
+        </li> -->
+        <li class="nav-item">
+          <router-link v-if="currentUser" to="/defender" class="nav-link">Личный кабинет</router-link>
+        </li>
+        <!-- <li class="nav-item">
+          <router-link v-if="currentUser" to="/defender" class="nav-link">Expert</router-link>
+        </li> -->
+        
+      </div>
+
+      <div v-if="!currentUser" class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <router-link to="/register" class="nav-link">
+            <font-awesome-icon icon="user-plus" />Регистрация
+          </router-link>
+        </li>
+        <li class="nav-item">
+          <router-link to="/login" class="nav-link">
+            <font-awesome-icon icon="sign-in-alt" />Авторизация
+          </router-link>
+        </li>
+      </div>
+
+      <div v-if="currentUser" class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <router-link to="/defender" class="nav-link">
+            <font-awesome-icon icon="user" />
+            {{ currentUser.username }}
+          </router-link>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href @click.prevent="logOut">
+            <font-awesome-icon icon="sign-out-alt" />Выйти
+          </a>
+        </li>
+      </div>
+    </nav>
+
+    <div class="container">
+      <router-view />
+    </div>
+  </div>
+</template>
+
+<script>
+import EventBus from "./common/EventBus"
+export default {
+  data() {
+    return{
+      userType:''
+    }
+  },
+  mounted(){
+    if (localStorage.getItem("userType")) {
+          this.userType = localStorage.getItem("userType");
+        }
+  },  
+  computed: {
+    isExpert() {
+      return this.userType === "expert";
+    },
+    isUser() {
+      return this.userType === "user";
+    },
+    isAdmin(){
+      return this.userType === "admin";
+
+    },
+    currentUser() {
+      return this.$store.state.auth.user;
+    },
+    showAdminBoard() {
+      if (this.currentUser && this.currentUser.roles) {
+        return this.currentUser.roles.includes('ROLE_ADMIN');
+      }
+
+      return false;
+    },
+    showModeratorBoard() {
+      if (this.currentUser && this.currentUser.roles) {
+        return this.currentUser.roles.includes('ROLE_MODERATOR');
+      }
+
+      return false;
+    }
+  },
+  methods: {
+    logOut() {1
+      this.$store.dispatch('auth/logout');
+      this.$router.push('/login');
+    },
+     mounted() {
+    EventBus.on("logout", () => {
+      this.logOut();
+    });
+  },
+  
+  beforeDestroy() {
+    EventBus.remove("logout");
+  }
+  },
+};
+</script>
